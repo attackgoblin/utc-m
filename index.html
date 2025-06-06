@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Crypto Info</title>
+  <!-- Responsive meta -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Bootstrap CSS -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+  >
+
+  <!-- GA4 Tag -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-M91Z44K3BM"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-M91Z44K3BM');
+  </script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    /* 전체 배경을 검은색 */
+    body {
+      background-color: #000;
+      color: #fff;
+      margin-top: 30px;
+    }
+    .gold {
+      color: #FFD700;
+    }
+    .card {
+      background-color: #000;
+      border: 1px solid #FFD700;
+    }
+    .card-header {
+      background-color: #000;
+      color: #FFD700;
+      border-bottom: 1px solid #FFD700;
+    }
+    .card-body {
+      color: #FFD700;
+    }
+    h1 {
+      color: #FFD700;
+    }
+    .time-info {
+      font-size: 1rem;
+      font-weight: 500;
+      margin: 0;
+    }
+    .countdown {
+      font-size: 0.9rem;
+      color: #FFD700;
+    }
+    .status-text {
+      font-size: 0.9rem;
+      font-style: italic;
+      margin: 0;
+      color: #ccc;
+    }
+    .change-positive {
+      color: #00fa9a;
+    }
+    .change-negative {
+      color: #ff6347;
+    }
+
+    /* 스파크라인 래퍼 */
+    .sparkline-container {
+      width: 100%;
+      height: 80px;
+      position: relative;
+    }
+    .sparkline-container canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ML 라벨 색상 예시 */
+    .ml-state-up {
+      color: #00fa9a;
+      font-weight: 600;
+    }
+    .ml-state-down {
+      color: #ff6347;
+      font-weight: 600;
+    }
+    .ml-state-flat {
+      color: #ccc;
+      font-weight: 600;
+    }
+    .ml-state-other {
+      color: #ffa500;
+      font-weight: 600;
+    }
+
+    /* 오버라이드: text-muted가 너무 어두우므로 밝게 조정 */
+    .text-muted {
+      color: #ccc !important; /* 더 밝은 색상으로 변경 */
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Header -->
+  <header class="container mb-4">
+    <div class="row">
+      <div class="col-12 text-center">
+        <h1 class="gold">Crypto Info</h1>
+        <p class="time-info" id="local-time">Local Time: -</p>
+        <p class="time-info" id="utc-time">UTC Time: -</p>
+        <p class="countdown" id="countdown">Next update in: 60s</p>
+        <p class="status-text" id="update-status">Last updated: -</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main content: Price cards -->
+  <main class="container">
+    <div class="row justify-content-center">
+      <!-- BTC Card -->
+      <div class="col-12 col-md-6 mb-3">
+        <div class="card text-center">
+          <div class="card-header">BTC</div>
+          <div class="card-body">
+            <!-- 시세 -->
+            <h5 class="card-title" id="btc-price">Loading...</h5>
+            <p class="card-text" id="btc-change">24h Change: -</p>
+            <p class="card-text" id="btc-volume">24h Volume: -</p>
+            <!-- 스파크라인 차트 -->
+            <div class="sparkline-container">
+              <canvas id="btc-chart"></canvas>
+            </div>
+
+            <!-- AI Market Outlook -->
+            <p class="mt-2">
+              AI Market Outlook:
+              <span id="btc-ml-state">-</span>
+            </p>
+            <p class="text-muted small mb-1" id="btc-ml-updated-utc">
+              Updated (UTC): -
+            </p>
+            <p class="text-muted small" id="btc-ml-updated-local">
+              Updated (Local): -
+            </p>
+          </div>
+        </div>
+      </div>
+      <!-- DOGE Card -->
+      <div class="col-12 col-md-6 mb-3">
+        <div class="card text-center">
+          <div class="card-header">DOGE</div>
+          <div class="card-body">
+            <!-- 시세 -->
+            <h5 class="card-title" id="doge-price">Loading...</h5>
+            <p class="card-text" id="doge-change">24h Change: -</p>
+            <p class="card-text" id="doge-volume">24h Volume: -</p>
+            <!-- 스파크라인 차트 -->
+            <div class="sparkline-container">
+              <canvas id="doge-chart"></canvas>
+            </div>
+
+            <!-- AI Market Outlook -->
+            <p class="mt-2">
+              AI Market Outlook:
+              <span id="doge-ml-state">-</span>
+            </p>
+            <p class="text-muted small mb-1" id="doge-ml-updated-utc">
+              Updated (UTC): -
+            </p>
+            <p class="text-muted small" id="doge-ml-updated-local">
+              Updated (Local): -
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="container mt-4">
+    <div class="row">
+      <div class="col-12 text-center">
+        <p class="gold">© 2025 MyCryptoSite</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // 주기 60초 (1분)
+    const PRICE_UPDATE_INTERVAL = 60; 
+    let timeLeft = PRICE_UPDATE_INTERVAL;
+
+    let lastSuccessfulUpdate = null;
+    let isPaused = false; 
+
+    // Chart.js 인스턴스
+    let btcChartInstance = null;
+    let dogeChartInstance = null;
+
+    // 1. Display Local and UTC time
+    function updateTimes() {
+      const now = new Date();
+
+      // Local
+      const localTimeElem = document.getElementById('local-time');
+      localTimeElem.textContent = `Local Time: ${now.toLocaleString('en-US', { hour12: true })}`;
+
+      // UTC
+      const utcTimeElem = document.getElementById('utc-time');
+      utcTimeElem.textContent = `UTC Time: ${now.toUTCString()}`;
+    }
+
+    // 2. Fetch prices + 24h change & volume
+    async function updatePrices() {
+      try {
+        const url = 'https://api.coingecko.com/api/v3/simple/price?' +
+          'ids=bitcoin,dogecoin&vs_currencies=usd' +
+          '&include_24hr_change=true' +
+          '&include_24hr_vol=true';
+
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        // BTC
+        const btcRawPrice = data.bitcoin.usd;
+        const btcPrice = Number(btcRawPrice).toLocaleString('en-US', {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0
+        });
+        const btcChange = data.bitcoin.usd_24h_change.toFixed(2);
+        const btcVolume = Number(data.bitcoin.usd_24h_vol).toLocaleString('en-US');
+        document.getElementById('btc-price').textContent = btcPrice;
+        document.getElementById('btc-change').textContent = `24h Change: ${btcChange}%`;
+        document.getElementById('btc-volume').textContent = `24h Volume: ${btcVolume} USD`;
+
+        // 변동률 색상
+        const btcChangeElem = document.getElementById('btc-change');
+        if (btcChange >= 0) {
+          btcChangeElem.classList.add('change-positive');
+          btcChangeElem.classList.remove('change-negative');
+        } else {
+          btcChangeElem.classList.add('change-negative');
+          btcChangeElem.classList.remove('change-positive');
+        }
+
+        // DOGE
+        const dogeRawPrice = data.dogecoin.usd;
+        const dogePrice = Number(dogeRawPrice).toFixed(6);
+        const dogeChange = data.dogecoin.usd_24h_change.toFixed(2);
+        const dogeVolume = Number(data.dogecoin.usd_24h_vol).toLocaleString('en-US');
+        document.getElementById('doge-price').textContent = dogePrice;
+        document.getElementById('doge-change').textContent = `24h Change: ${dogeChange}%`;
+        document.getElementById('doge-volume').textContent = `24h Volume: ${dogeVolume} USD`;
+
+        const dogeChangeElem = document.getElementById('doge-change');
+        if (dogeChange >= 0) {
+          dogeChangeElem.classList.add('change-positive');
+          dogeChangeElem.classList.remove('change-negative');
+        } else {
+          dogeChangeElem.classList.add('change-negative');
+          dogeChangeElem.classList.remove('change-positive');
+        }
+
+        // Update sparkline
+        await Promise.all([
+          updateSparkline('bitcoin', 'btc-chart', btcChartInstance, 'btcChartInstance'),
+          updateSparkline('dogecoin', 'doge-chart', dogeChartInstance, 'dogeChartInstance')
+        ]);
+
+        // Last updated time
+        lastSuccessfulUpdate = new Date();
+        document.getElementById('update-status').textContent =
+          `Last updated: ${lastSuccessfulUpdate.toLocaleTimeString('en-US', { hour12: true })}`;
+
+        if (isPaused) {
+          isPaused = false;
+        }
+      } catch (error) {
+        console.error('API Error:', error);
+        document.getElementById('update-status').textContent = 'Update paused: API Error';
+        isPaused = true;
+      }
+    }
+
+    // 3. Sparkline update
+    async function updateSparkline(coinId, canvasId, chartInstance, chartInstanceName) {
+      try {
+        const chartUrl = `https://api.coingecko.com/api/v3/coins/${coinId}/market_chart?vs_currency=usd&days=1`;
+        const res = await fetch(chartUrl);
+        if (!res.ok) {
+          throw new Error(`Market chart API error: ${res.status}`);
+        }
+        const chartData = await res.json();
+        const prices = chartData.prices;
+        let step = Math.floor(prices.length / 12);
+        if (step < 1) step = 1;
+
+        const labels = [];
+        const values = [];
+        for (let i = 0; i < prices.length; i += step) {
+          const [timestamp, price] = prices[i];
+          const date = new Date(timestamp);
+          const label = date.toLocaleTimeString('en-US', {
+            hour12: true, hour: '2-digit', minute: '2-digit'
+          });
+          labels.push(label);
+          values.push(price);
+        }
+
+        const ctx = document.getElementById(canvasId).getContext('2d');
+        if (chartInstance) {
+          chartInstance.destroy();
+        }
+
+        const newChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              data: values,
+              borderColor: '#FFD700',
+              borderWidth: 1.5,
+              fill: false
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { display: false },
+              y: { display: false }
+            },
+            plugins: {
+              legend: { display: false },
+              tooltip: { enabled: false }
+            }
+          }
+        });
+
+        window[chartInstanceName] = newChart;
+      } catch (error) {
+        console.error(`Sparkline error for ${coinId}:`, error);
+      }
+    }
+
+    // 4. Countdown for next price update
+    function updateCountdown() {
+      if (!isPaused) {
+        document.getElementById('countdown').textContent = `Next update in: ${timeLeft}s`;
+        timeLeft--;
+        if (timeLeft < 0) {
+          updatePrices();
+          timeLeft = PRICE_UPDATE_INTERVAL;
+        }
+      } else {
+        document.getElementById('countdown').textContent = 'Next update in: Paused';
+      }
+    }
+
+    // (NEW) Fetch ML prediction.json & Update UI
+    async function fetchPredictionJson() {
+      try {
+        const resp = await fetch('./prediction.json');
+        if (!resp.ok) throw new Error(`prediction.json load error: ${resp.status}`);
+        const data = await resp.json();
+
+        // data example:
+        // {
+        //   "BTCUSDT": { "final": "상승", "updated_at": "2025-06-04T22:07:27.444087+09:00" },
+        //   "DOGEUSDT": { "final": "횡보", "updated_at": "2025-06-04T22:07:27.444087+09:00" }
+        // }
+
+        // BTC
+        if (data["BTCUSDT"]) {
+          const finalLabel = data["BTCUSDT"].final;
+          const utcTime = data["BTCUSDT"].updated_at;
+          updateMLState("btc", finalLabel, utcTime);
+        }
+
+        // DOGE
+        if (data["DOGEUSDT"]) {
+          const finalLabel = data["DOGEUSDT"].final;
+          const utcTime = data["DOGEUSDT"].updated_at;
+          updateMLState("doge", finalLabel, utcTime);
+        }
+      } catch (error) {
+        console.error("ML Prediction load error:", error);
+      }
+    }
+
+    function updateMLState(coinPrefix, finalLabel, updatedAtUTC) {
+      const labelElem = document.getElementById(`${coinPrefix}-ml-state`);
+      labelElem.textContent = finalLabel || '-';
+
+      // 라벨 색상 class
+      labelElem.classList.remove("ml-state-up","ml-state-down","ml-state-flat","ml-state-other");
+      if (finalLabel === "Up") labelElem.classList.add("ml-state-up");
+      else if (finalLabel === "Down") labelElem.classList.add("ml-state-down");
+      else if (finalLabel === "Flat") labelElem.classList.add("ml-state-flat");
+      else labelElem.classList.add("ml-state-other");
+
+      const utcElem = document.getElementById(`${coinPrefix}-ml-updated-utc`);
+      const localElem = document.getElementById(`${coinPrefix}-ml-updated-local`);
+      if (!updatedAtUTC) {
+        utcElem.textContent = "Updated (UTC): -";
+        localElem.textContent = "Updated (Local): -";
+        return;
+      }
+      // UTC 표시
+      const utcStr = updatedAtUTC.replace("T"," ").replace("Z"," UTC");
+      utcElem.textContent = `Updated (UTC): ${utcStr}`;
+
+      // Local 표시
+      const dateObj = new Date(updatedAtUTC);
+      localElem.textContent = `Updated (Local): ${dateObj.toLocaleString()}`;
+    }
+
+    // 5. Initial calls
+    updateTimes();
+    updatePrices();
+    fetchPredictionJson(); // ML 데이터 가져와 반영
+
+    // Time & countdown intervals
+    setInterval(updateTimes, 1000);        // 1초마다 local/UTC
+    setInterval(updateCountdown, 1000);    // 1초마다 카운트다운
+    // 필요시 setInterval(fetchPredictionJson, 60000);  // 1분마다 ML 결과 갱신
+  </script>
+</body>
+</html>
