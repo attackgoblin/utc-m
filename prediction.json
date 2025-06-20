@@ -1,12 +1,12 @@
 {
   "BTCUSDT": {
-    "final": "Other",
-    "updated_at": "2025-06-21T00:57:58.696119+09:00",
-    "close_time_str": "2025-06-20 12:36:59"
+    "final": "Flat",
+    "updated_at": "2025-06-21T04:51:19.134973+09:00",
+    "close_time_str": "2025-06-20 16:31:59"
   },
   "DOGEUSDT": {
-    "final": "Flat",
-    "updated_at": "2025-06-21T01:11:35.760410+09:00",
-    "close_time_str": "2025-06-20 12:36:59"
+    "final": "Down",
+    "updated_at": "2025-06-21T05:04:45.059065+09:00",
+    "close_time_str": "2025-06-20 16:31:59"
   }
 }
